@@ -10,6 +10,7 @@ from math import copysign, floor
 from typing import Iterator, Tuple
 
 import pygame
+import pygame.freetype
 
 
 class VoxelRaycaster:
@@ -245,6 +246,36 @@ class GridView:
         self.ray_view.on_render()
 
 
+class InfoViewUI:
+    def __init__(self, surface: pygame.surface.Surface) -> None:
+        self._display_surf = surface
+        self.font = pygame.freetype.get_default_font()
+        self._font = pygame.freetype.SysFont(self.font, 16)
+        self._text = ""
+        self._rendered_font = None
+
+        self.max_text_width = 0
+        self.max_text_height = 0
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, text: str):
+        if text != self._text:
+            self._text = text
+            self._rendered_font, _ = self._font.render(text, (255, 255, 255))
+
+    def on_render(self):
+        if self._rendered_font is not None:
+            self.max_text_width = max(self._rendered_font.get_width(), self.max_text_width)
+            self.max_text_height = max(self._rendered_font.get_height(), self.max_text_height)
+            text_rect = pygame.Rect(16 - 8, 16 - 8, self.max_text_width + 8 * 2, self.max_text_height + 8 * 2)
+            pygame.draw.rect(self._display_surf, (0, 0, 0), text_rect)
+            self._display_surf.blit(self._rendered_font, (16, 16))
+
+
 class App:
     def __init__(self) -> None:
         self._running = False
@@ -255,6 +286,7 @@ class App:
         pygame.init()
         self._display_surf = pygame.display.set_mode(self.size)
         self.grid_view = GridView(self._display_surf)
+        self.info_ui = InfoViewUI(self._display_surf)
         return True
 
     def on_event(self, event) -> None:
@@ -269,8 +301,10 @@ class App:
     def on_render(self) -> None:
         self._display_surf.fill((255, 255, 255))
         self.grid_view.on_render()
+        self.info_ui.on_render()
         pygame.display.flip()
         self._fps_clock.tick(60)
+        self.info_ui.text = "FPS: " + str(self._fps_clock.get_fps())[:4]
 
     def on_cleanup(self) -> None:
         pygame.quit()
