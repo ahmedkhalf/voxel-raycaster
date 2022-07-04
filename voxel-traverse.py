@@ -5,9 +5,10 @@ http://www.cse.yorku.ca/~amana/research/grid.pdf
 """
 
 
-from typing import Iterator, Tuple
-from math import floor, copysign
 import math
+from math import copysign, floor
+from typing import Iterator, Tuple
+
 import pygame
 
 
@@ -27,12 +28,14 @@ class VoxelRaycaster:
     def set_dim(self, width: int, height: int) -> None:
         self._width = width
         self._height = height
-    
+
     def _normalize(self, x, y):
         norm = math.sqrt(x**2 + y**2)
         return x / norm, y / norm
-    
-    def cast(self, origin: Tuple[float, float], direction: Tuple[float, float]) -> Iterator[Tuple[int, int]]:
+
+    def cast(
+        self, origin: Tuple[float, float], direction: Tuple[float, float]
+    ) -> Iterator[Tuple[int, int]]:
         x = floor(origin[0])
         y = floor(origin[1])
         yield x, y
@@ -109,7 +112,9 @@ class RayView:
 
     def on_render(self):
         pygame.draw.line(self._display_surf, (0, 0, 0), (self.x, self.y), (self.dx, self.dy), 3)
-        pygame.draw.line(self._display_surf, (255, 255, 255), (self.x, self.y), (self.dx, self.dy), 1)
+        pygame.draw.line(
+            self._display_surf, (255, 255, 255), (self.x, self.y), (self.dx, self.dy), 1
+        )
         pygame.draw.circle(self._display_surf, (200, 0, 0), (self.x, self.y), self.radius)
         pygame.draw.circle(self._display_surf, (0, 0, 200), (self.dx, self.dy), self.radius)
 
@@ -127,7 +132,7 @@ class GridView:
 
         self.grid_width = self.width // self.cell_size + 1
         self.grid_height = self.height // self.cell_size + 1
-        
+
         self.grid = VoxelRaycaster(self.grid_width, self.grid_height)
 
     def reset_position(self):
@@ -220,17 +225,21 @@ class GridView:
         print(self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y))
         voxel_raycast = self.grid.cast(
             self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y),
-            self.get_rel_cell_xy(self.ray_view.dx - self.ray_view.x, self.ray_view.dy - self.ray_view.y)
+            self.get_rel_cell_xy(
+                self.ray_view.dx - self.ray_view.x, self.ray_view.dy - self.ray_view.y
+            ),
         )
 
         for x, y in voxel_raycast:
             pygame.draw.rect(
-                self._display_surf, (0, 0, 0),
+                self._display_surf,
+                (0, 0, 0),
                 pygame.Rect(
                     x * self.cell_size - (self.cell_size - offset_x) % self.cell_size,
                     y * self.cell_size - (self.cell_size - offset_y) % self.cell_size,
-                    self.cell_size, self.cell_size
-                )
+                    self.cell_size,
+                    self.cell_size,
+                ),
             )
 
         # Finally, we draw the ray
@@ -242,13 +251,13 @@ class App:
         self._running = False
         self.size = self.weight, self.height = 640, 400
         self._fps_clock = pygame.time.Clock()
- 
+
     def on_init(self) -> bool:
         pygame.init()
         self._display_surf = pygame.display.set_mode(self.size)
         self.grid_view = GridView(self._display_surf)
         return True
- 
+
     def on_event(self, event) -> None:
         if event.type == pygame.QUIT:
             self._running = False
@@ -270,7 +279,7 @@ class App:
     def on_execute(self):
         if self.on_init():
             self._running = True
- 
+
         while self._running:
             for event in pygame.event.get():
                 self.on_event(event)
@@ -278,6 +287,6 @@ class App:
             self.on_render()
         self.on_cleanup()
 
+
 if __name__ == "__main__":
     App().on_execute()
-
