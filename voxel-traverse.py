@@ -222,12 +222,11 @@ class GridView:
             pygame.draw.line(self._display_surf, (0, 0, 0), (0, line_y), (line_x, line_y))
 
         # Next, we draw the grid cells
-        print(self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y))
+        start_x, start_y = self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y)
+        end_x, end_y = self.get_rel_cell_xy(self.ray_view.dx, self.ray_view.dy)
         voxel_raycast = self.grid.cast(
-            self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y),
-            self.get_rel_cell_xy(
-                self.ray_view.dx - self.ray_view.x, self.ray_view.dy - self.ray_view.y
-            ),
+            (start_x, start_y),
+            (end_x - start_x, end_y - start_y),
         )
 
         for x, y in voxel_raycast:
