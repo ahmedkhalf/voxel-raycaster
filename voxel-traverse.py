@@ -286,7 +286,7 @@ class App:
 
     def on_init(self) -> bool:
         pygame.init()
-        self._display_surf = pygame.display.set_mode(self.size)
+        self._display_surf = pygame.display.set_mode(self.size, pygame.RESIZABLE)
         self.grid_view = GridView(self._display_surf)
         self.info_ui = InfoViewUI(self._display_surf)
         return True
