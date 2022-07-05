@@ -271,7 +271,9 @@ class InfoViewUI:
         if self._rendered_font is not None:
             self.max_text_width = max(self._rendered_font.get_width(), self.max_text_width)
             self.max_text_height = max(self._rendered_font.get_height(), self.max_text_height)
-            text_rect = pygame.Rect(16 - 8, 16 - 8, self.max_text_width + 8 * 2, self.max_text_height + 8 * 2)
+            text_rect = pygame.Rect(
+                16 - 8, 16 - 8, self.max_text_width + 8 * 2, self.max_text_height + 8 * 2
+            )
             pygame.draw.rect(self._display_surf, (0, 0, 0), text_rect)
             self._display_surf.blit(self._rendered_font, (16, 16))
 
