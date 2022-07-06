@@ -37,6 +37,9 @@ class VoxelRaycaster:
     def cast(
         self, origin: Tuple[float, float], direction: Tuple[float, float]
     ) -> Iterator[Tuple[int, int]]:
+        if direction == (0, 0):
+            return
+
         x = floor(origin[0])
         y = floor(origin[1])
         yield x, y
