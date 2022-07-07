@@ -121,9 +121,12 @@ class GridView:
         self.width, self.height = self._display_surf.get_size()
         self.ray_view = RayView(self._display_surf)
 
-        self.x, self.y = 0, 0
+        # state
         self.drag = False
         self.drag_ray = False
+        self.last_cursor = None
+
+        self.x, self.y = 0, 0
         self.cell_size = 32
 
         self.grid_width = self.width // self.cell_size + 1
@@ -152,7 +155,12 @@ class GridView:
         self.width, self.height = self._display_surf.get_size()
         self.grid_width = self.width // self.cell_size + 1
         self.grid_height = self.height // self.cell_size + 1
-        self.grid.set_dim(self.width, self.height)
+        self.grid.set_dim(self.grid_width, self.grid_height)
+
+    def _set_cursor(self, cursor) -> None:
+        if self.last_cursor != cursor:
+            pygame.mouse.set_cursor(cursor)
+            self.last_cursor = cursor
 
     def on_event(self, event) -> None:
         if event.type == pygame.KEYDOWN:
@@ -167,7 +175,7 @@ class GridView:
             elif event.button == 3:
                 if not self.drag_ray:
                     self.drag = True
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_SIZEALL)
+                    self._set_cursor(pygame.SYSTEM_CURSOR_SIZEALL)
             elif event.button == 4:
                 self.zoom(1)
             elif event.button == 5:
@@ -178,9 +186,9 @@ class GridView:
             elif event.button == 3:
                 self.drag = False
                 if self.ray_view.is_hovering(*event.pos):
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                    self._set_cursor(pygame.SYSTEM_CURSOR_HAND)
                 else:
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                    self._set_cursor(pygame.SYSTEM_CURSOR_ARROW)
         elif event.type == pygame.MOUSEMOTION:
             if self.drag:
                 self.translate(*event.rel)
@@ -188,9 +196,9 @@ class GridView:
                 self.ray_view.translate(*event.rel)
             else:
                 if self.ray_view.is_hovering(event.pos[0], event.pos[1]):
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+                    self._set_cursor(pygame.SYSTEM_CURSOR_HAND)
                 else:
-                    pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+                    self._set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
     def get_rel_cell_xy(self, x_pos: int, y_pos: int):
         offset_x = self.x % self.cell_size
