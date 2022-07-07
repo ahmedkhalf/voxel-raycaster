@@ -40,8 +40,8 @@ class VoxelRaycaster:
         dir_x, dir_y = direction
         stepX = int(copysign(1, dir_x))
         stepY = int(copysign(1, dir_y))
-        positiveStepX = int(stepX > 0)
-        positiveStepY = int(stepY > 0)
+        positiveStepX = stepX > 0
+        positiveStepY = stepY > 0
         justOutX = positiveStepX * self.width + stepX
         justOutY = positiveStepY * self.height + stepY
 
