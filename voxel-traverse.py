@@ -49,22 +49,19 @@ class VoxelRaycaster:
         stepX = int(copysign(1, dir_x))
         stepY = int(copysign(1, dir_y))
 
-        try:
+        # Unlike c, python does not implicitly set division by 0 to inf
+        if dir_x != 0:
             tMaxX = ((stepX + 1) // 2 - (origin[0] - x)) / dir_x
-        except ZeroDivisionError:
-            tMaxX = math.inf
-        try:
-            tMaxY = ((stepY + 1) // 2 - (origin[1] - y)) / dir_y
-        except ZeroDivisionError:
-            tMaxY = math.inf
-
-        try:
             tDeltaX = stepX / dir_x
-        except ZeroDivisionError:
+        else:
+            tMaxX = math.inf
             tDeltaX = math.inf
-        try:
+
+        if dir_y != 0:
+            tMaxY = ((stepY + 1) // 2 - (origin[1] - y)) / dir_y
             tDeltaY = stepY / dir_y
-        except ZeroDivisionError:
+        else:
+            tMaxY = math.inf
             tDeltaY = math.inf
 
         while True:
