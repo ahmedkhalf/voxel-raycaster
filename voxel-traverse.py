@@ -40,17 +40,21 @@ class VoxelRaycaster:
         dir_x, dir_y = direction
         stepX = int(copysign(1, dir_x))
         stepY = int(copysign(1, dir_y))
+        positiveStepX = int(stepX > 0)
+        positiveStepY = int(stepY > 0)
+        justOutX = positiveStepX * self.width + stepX
+        justOutY = positiveStepY * self.height + stepY
 
         # Unlike c, python does not implicitly set division by 0 to inf
         if dir_x != 0:
-            tMaxX = ((stepX + 1) // 2 - (origin[0] - x)) / dir_x
+            tMaxX = (positiveStepX - (origin[0] - x)) / dir_x
             tDeltaX = stepX / dir_x
         else:
             tMaxX = math.inf
             tDeltaX = math.inf
 
         if dir_y != 0:
-            tMaxY = ((stepY + 1) // 2 - (origin[1] - y)) / dir_y
+            tMaxY = (positiveStepY - (origin[1] - y)) / dir_y
             tDeltaY = stepY / dir_y
         else:
             tMaxY = math.inf
@@ -59,15 +63,14 @@ class VoxelRaycaster:
         while True:
             if tMaxX < tMaxY:
                 tMaxX += tDeltaX
+                if x == justOutX:
+                    return
                 x += stepX
             else:
                 tMaxY += tDeltaY
+                if y == justOutY:
+                    return
                 y += stepY
-
-            if x >= self._width or x < 0:
-                break
-            elif y >= self._height or y < 0:
-                break
 
             yield x, y
 
