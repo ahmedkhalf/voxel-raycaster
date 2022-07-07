@@ -62,15 +62,15 @@ class VoxelRaycaster:
 
         while True:
             if tMaxX < tMaxY:
-                tMaxX += tDeltaX
+                x += stepX
                 if x == justOutX:
                     return
-                x += stepX
+                tMaxX += tDeltaX
             else:
-                tMaxY += tDeltaY
+                y += stepY
                 if y == justOutY:
                     return
-                y += stepY
+                tMaxY += tDeltaY
 
             yield x, y
 
