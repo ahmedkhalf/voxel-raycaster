@@ -33,9 +33,13 @@ class VoxelRaycaster:
     def cast(
         self, origin: Tuple[float, float], direction: Tuple[float, float]
     ) -> Iterator[Tuple[int, int]]:
+        """
+        Preconditions:
+            - 0 <= x < self.width
+            - 0 <= y < self.height
+        """
         x = floor(origin[0])
         y = floor(origin[1])
-        yield x, y
 
         dir_x, dir_y = direction
         stepX = int(copysign(1, dir_x))
@@ -61,6 +65,8 @@ class VoxelRaycaster:
             tDeltaY = math.inf
 
         while True:
+            yield x, y
+
             if tMaxX < tMaxY:
                 x += stepX
                 if x == justOutX:
@@ -71,8 +77,6 @@ class VoxelRaycaster:
                 if y == justOutY:
                     return
                 tMaxY += tDeltaY
-
-            yield x, y
 
 
 class RayView:
