@@ -195,7 +195,7 @@ class GridView:
                     self._set_cursor(pygame.SYSTEM_CURSOR_ARROW)
         elif event.type == pygame.MOUSEMOTION:
             if self.drag:
-                self.translate(*event.rel)
+                self.translate(-event.rel[0], -event.rel[1])
             elif self.drag_ray:
                 self.ray_view.translate(*event.rel)
             else:
