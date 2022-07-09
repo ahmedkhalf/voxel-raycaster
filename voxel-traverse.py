@@ -46,8 +46,8 @@ class VoxelRaycaster:
         stepY = int(copysign(1, dir_y))
         positiveStepX = stepX > 0
         positiveStepY = stepY > 0
-        justOutX = positiveStepX * self.width + stepX
-        justOutY = positiveStepY * self.height + stepY
+        justOutX = positiveStepX * (self.width - 1) + stepX
+        justOutY = positiveStepY * (self.height - 1) + stepY
 
         # Unlike c, python does not implicitly set division by 0 to inf
         if dir_x != 0:
