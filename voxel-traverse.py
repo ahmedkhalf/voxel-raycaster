@@ -80,50 +80,61 @@ class VoxelRaycaster:
 
 
 class RayView:
-    def __init__(self, surface: pygame.surface.Surface) -> None:
+    def __init__(self, surface: pygame.surface.Surface, grid) -> None:
         self._display_surf = surface
         self.width, self.height = self._display_surf.get_size()
+        self.grid = grid
 
-        self.x, self.y = self.width // 2, self.height // 2
-        self.dx, self.dy = self.width // 2 + 100, self.height // 2 + 100
+        self.x, self.y = 5, 5
+        self.dx, self.dy = 6, 6
         self.radius = 5
         self.click_radius = 12
         self.start_hovered = True
 
+    def _grid_to_pos(self, x, y):
+        new_x = x * self.grid.cell_size - self.grid.x
+        new_y = y * self.grid.cell_size - self.grid.y
+        return new_x, new_y
+
     def is_hovering(self, mouse_x: int, mouse_y: int) -> bool:
-        if math.dist((mouse_x, mouse_y), (self.dx, self.dy)) <= self.click_radius:
+        if math.dist((mouse_x, mouse_y), self._grid_to_pos(self.dx, self.dy)) <= self.click_radius:
             self.start_hovered = False
             return True
-        elif math.dist((mouse_x, mouse_y), (self.x, self.y)) <= self.click_radius:
+        elif math.dist((mouse_x, mouse_y), self._grid_to_pos(self.x, self.y)) <= self.click_radius:
             self.start_hovered = True
             return True
         return False
 
     def translate(self, x_change: int, y_change: int):
+        cx = x_change / self.grid.cell_size
+        cy = y_change / self.grid.cell_size
         if self.start_hovered:
-            self.x += x_change
-            self.y += y_change
+            self.x += cx
+            self.y += cy
         else:
-            self.dx += x_change
-            self.dy += y_change
+            self.dx += cx
+            self.dy += cy
 
     def on_loop(self):
         self.width, self.height = self._display_surf.get_size()
 
     def on_render(self):
-        pygame.draw.line(self._display_surf, (0, 0, 0), (self.x, self.y), (self.dx, self.dy), 3)
+        x_pos, y_pos = self._grid_to_pos(self.x, self.y)
+        dx_pos, dy_pos = self._grid_to_pos(self.dx, self.dy)
+
+        pygame.draw.line(self._display_surf, (0, 0, 0), (x_pos, y_pos), (dx_pos, dy_pos), 3)
         pygame.draw.line(
-            self._display_surf, (255, 255, 255), (self.x, self.y), (self.dx, self.dy), 1
+            self._display_surf, (255, 255, 255), (x_pos, y_pos), (dx_pos, dy_pos), 1
         )
-        pygame.draw.circle(self._display_surf, (200, 0, 0), (self.x, self.y), self.radius)
-        pygame.draw.circle(self._display_surf, (0, 0, 200), (self.dx, self.dy), self.radius)
+        pygame.draw.circle(self._display_surf, (200, 0, 0), (x_pos, y_pos), self.radius)
+        pygame.draw.circle(self._display_surf, (0, 0, 200), (dx_pos, dy_pos), self.radius)
 
 
 class GridView:
     def __init__(self, surface: pygame.surface.Surface) -> None:
         self._display_surf = surface
         self.width, self.height = self._display_surf.get_size()
-        self.ray_view = RayView(self._display_surf)
+        self.ray_view = RayView(self._display_surf, self)
 
         # state
         self.drag = False
@@ -212,13 +223,11 @@ class GridView:
         return cell_x, cell_y
 
     def on_loop(self) -> None:
-        self.reset_grid()
+        # self.reset_grid()
+        pass
 
     def on_render(self) -> None:
         # First, we draw the grid boundaries
-        offset_x = self.x % self.cell_size
-        offset_y = self.y % self.cell_size
-
         for i in range(self.grid_width + 1):
             line_x = i * self.cell_size - self.x
             line_y = self.cell_size * self.grid_height - self.y
@@ -230,8 +239,8 @@ class GridView:
             pygame.draw.line(self._display_surf, (0, 0, 0), (-self.x, line_y), (line_x, line_y))
 
         # Next, we draw the grid cells
-        start_x, start_y = self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y)
-        end_x, end_y = self.get_rel_cell_xy(self.ray_view.dx, self.ray_view.dy)
+        start_x, start_y = self.ray_view.x, self.ray_view.y
+        end_x, end_y = self.ray_view.dx, self.ray_view.dy
         voxel_raycast = self.grid.cast(
             (start_x, start_y),
             (end_x - start_x, end_y - start_y),
@@ -242,8 +251,8 @@ class GridView:
                 self._display_surf,
                 (0, 0, 0),
                 pygame.Rect(
-                    x * self.cell_size - (self.cell_size - offset_x) % self.cell_size,
-                    y * self.cell_size - (self.cell_size - offset_y) % self.cell_size,
+                    x * self.cell_size - self.x,
+                    y * self.cell_size - self.y,
                     self.cell_size,
                     self.cell_size,
                 ),
