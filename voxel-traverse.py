@@ -220,14 +220,14 @@ class GridView:
         offset_y = self.y % self.cell_size
 
         for i in range(self.grid_width + 1):
-            line_x = i * self.cell_size + offset_x
-            line_y = self.cell_size * self.grid_height
-            pygame.draw.line(self._display_surf, (0, 0, 0), (line_x, 0), (line_x, line_y))
+            line_x = i * self.cell_size - self.x
+            line_y = self.cell_size * self.grid_height - self.y
+            pygame.draw.line(self._display_surf, (0, 0, 0), (line_x, -self.y), (line_x, line_y))
 
         for i in range(self.grid_height + 1):
-            line_y = i * self.cell_size + offset_y
-            line_x = self.cell_size * self.grid_width
-            pygame.draw.line(self._display_surf, (0, 0, 0), (0, line_y), (line_x, line_y))
+            line_y = i * self.cell_size - self.y
+            line_x = self.cell_size * self.grid_width - self.x
+            pygame.draw.line(self._display_surf, (0, 0, 0), (-self.x, line_y), (line_x, line_y))
 
         # Next, we draw the grid cells
         start_x, start_y = self.get_rel_cell_xy(self.ray_view.x, self.ray_view.y)
